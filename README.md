@@ -4,4 +4,4 @@ This app allows users to view and interact with employee information stored on a
 
 The github repository is: https://github.com/william-appleton/employee-management
 
-And a video demonstrating the app can be seen at: 
+And a video demonstrating the app can be seen at: https://drive.google.com/file/d/18ST5BWwygqFjR3VBgxOLgxjLLc5eVo1l/view
