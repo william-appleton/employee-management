@@ -36,4 +36,4 @@ VALUES
     ('Jessica', 'Heart', 7, 8),
     ('Mark', 'Jessup', 8, NULL),
     ('Emily', 'Austen', 9, NULL),
-    ('Jake', 'Abbot', 10, 9;)
+    ('Jake', 'Abbot', 10, 9);
