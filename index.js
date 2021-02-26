@@ -61,12 +61,12 @@ async function userPrompts() {
           return viewRoles();
         case "ADD_EMPLOYEE":
           return addEmployee();
-        /*case "ADD_DEPARTMENT":
+        case "ADD_DEPARTMENT":
           return addDepartment();
         case "ADD_ROLE":
           return addRole();
         case "UPDATE_EMPLOYEE_ROLE":
-          return updateEmployeeRole();*/
+          return updateEmployeeRole();
         default:
           return quit();
     }
@@ -179,10 +179,114 @@ async function addEmployee() {
   
     userPrompts();
 }
+
+//ADD NEW DEPARTMENT FUNCTIONS
+function addNewDepartment(department) {
+    return connection.query("INSERT INTO department SET ?", department);
+}
+
+async function addDepartment() {
+    const department = await prompt([
+      {
+        name: "name",
+        message: "What is the name of the new department?"
+      }
+    ]);
   
+    await addNewDepartment(department);
+  
+    console.log(`Added ${department.name} to the database`);
+  
+    userPrompts();
+}
 
+//ADD ROLE FUNCTIONS
+function addNewRole(role) {
+    return connection.query("INSERT INTO role SET ?", role);
+}
 
-/*connection.query("SELECT * FROM department", function (err, result, fields) {
-    if (err) throw err;
-    console.table(result);
-  });*/
+async function addRole() {
+    const departments = await allDepartments();
+  
+    const departmentChoices = departments.map(({ id, name }) => ({
+      name: name,
+      value: id
+    }));
+  
+    const role = await prompt([
+      {
+        name: "title",
+        message: "What is the name of the new role?"
+      },
+      {
+        name: "salary",
+        message: "What is the salary?"
+      },
+      {
+        type: "list",
+        name: "department_id",
+        message: "Which department does the role belong to?",
+        choices: departmentChoices
+      }
+    ]);
+  
+    await addNewRole(role);
+  
+    console.log(`Added ${role.title} to the database`);
+  
+    userPrompts();
+}
+
+//FUNCTIONS TO UPDATE EMPLOYEE ROLE
+function newEmployeeRole(employeeId, roleId) {
+    return connection.query(
+      "UPDATE employee SET role_id = ? WHERE id = ?",
+      [roleId, employeeId]
+    );
+}
+
+async function updateEmployeeRole() {
+    const employees = await allEmployees();
+  
+    const employeeChoices = employees.map(({ id, first_name, last_name }) => ({
+      name: `${first_name} ${last_name}`,
+      value: id
+    }));
+  
+    const { employeeId } = await prompt([
+      {
+        type: "list",
+        name: "employeeId",
+        message: "Which employee do you want to update the role for?",
+        choices: employeeChoices
+      }
+    ]);
+  
+    const roles = await allRoles();
+  
+    const roleChoices = roles.map(({ id, title }) => ({
+      name: title,
+      value: id
+    }));
+  
+    const { roleId } = await prompt([
+      {
+        type: "list",
+        name: "roleId",
+        message: "What is their new role?",
+        choices: roleChoices
+      }
+    ]);
+  
+    await newEmployeeRole(employeeId, roleId);
+  
+    console.log("Role updated in database");
+  
+    userPrompts();
+}
+
+//QUIT
+function quit() {
+    console.log("Thank you for using the Employee Database CMS!");
+    process.exit();
+}
