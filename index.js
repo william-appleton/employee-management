@@ -59,9 +59,9 @@ async function userPrompts() {
           return viewDepartments();
         case "VIEW_ROLES":
           return viewRoles();
-        /*case "ADD_EMPLOYEE":
+        case "ADD_EMPLOYEE":
           return addEmployee();
-        case "ADD_DEPARTMENT":
+        /*case "ADD_DEPARTMENT":
           return addDepartment();
         case "ADD_ROLE":
           return addRole();
@@ -103,7 +103,7 @@ async function viewDepartments() {
     console.table(departments);
   
     userPrompts();
-  }
+}
 
 
 //VIEW ALL ROLES FUNCTIONS
@@ -111,7 +111,7 @@ function allRoles() {
     return connection.query(
       "SELECT role.id, role.title, department.name AS department, role.salary FROM role LEFT JOIN department on role.department_id = department.id;"
     );
-  }
+}
 
 async function viewRoles() {
     const roles = await allRoles();
@@ -120,7 +120,66 @@ async function viewRoles() {
     console.table(roles);
   
     userPrompts();
-  }
+}
+
+//ADD EMPLOYEE FUNCTIONS
+function addNewEmployee(employee) {
+    return connection.query("INSERT INTO employee SET ?", employee);
+}
+
+async function addEmployee() {
+    const roles = await allRoles();
+    const employees = await allEmployees();
+  
+    const employee = await prompt([
+      {
+        name: "first_name",
+        message: "What is the first name of the new employee?"
+      },
+      {
+        name: "last_name",
+        message: "What is their last name?"
+      }
+    ]);
+  
+    const roleChoices = roles.map(({ id, title }) => ({
+      name: title,
+      value: id
+    }));
+  
+    const { roleId } = await prompt({
+      type: "list",
+      name: "roleId",
+      message: "What is their role?",
+      choices: roleChoices
+    });
+  
+    employee.role_id = roleId;
+  
+    const managerChoices = employees.map(({ id, first_name, last_name }) => ({
+      name: `${first_name} ${last_name}`,
+      value: id
+    }));
+    managerChoices.unshift({ name: "None", value: null });
+  
+    const { managerId } = await prompt({
+      type: "list",
+      name: "managerId",
+      message: "Who is their manager?",
+      choices: managerChoices
+    });
+  
+    employee.manager_id = managerId;
+  
+    await addNewEmployee(employee);
+  
+    console.log(
+      `Added ${employee.first_name} ${employee.last_name} to the database`
+    );
+  
+    userPrompts();
+}
+  
 
 
 /*connection.query("SELECT * FROM department", function (err, result, fields) {
