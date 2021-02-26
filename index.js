@@ -3,6 +3,7 @@ require("console.table")
 const { prompt } = require("inquirer")
 
 function start() {
+    console.log("Welcome to the CMS for the Employee Database!")
     userPrompts();
 }
 
@@ -13,7 +14,7 @@ async function userPrompts() {
       {
         type: "list",
         name: "choice",
-        message: "Please choose an action from the list!",
+        message: "Please choose an action from the list.",
         choices: [
           {
               name: "View Employees",
@@ -54,11 +55,11 @@ async function userPrompts() {
     switch (choice) {
         case "VIEW_EMPLOYEES":
           return viewEmployees();
-        /*case "VIEW_DEPARTMENTS":
+        case "VIEW_DEPARTMENTS":
           return viewDepartments();
         case "VIEW_ROLES":
           return viewRoles();
-        case "ADD_EMPLOYEE":
+        /*case "ADD_EMPLOYEE":
           return addEmployee();
         case "ADD_DEPARTMENT":
           return addDepartment();
@@ -72,7 +73,6 @@ async function userPrompts() {
 }
 
 //VIEW EMPLOYEES FUNCTIONS
-
 function allEmployees() {
     return connection.query(
       "SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, CONCAT(manager.first_name, ' ', manager.last_name) AS manager FROM employee LEFT JOIN role on employee.role_id = role.id LEFT JOIN department on role.department_id = department.id LEFT JOIN employee manager on manager.id = employee.manager_id;"
@@ -89,11 +89,41 @@ async function viewEmployees() {
     userPrompts();
 }
 
+//VIEW ALL DEPARTMENTS FUNCTION
+function allDepartments() {
+    return connection.query(
+      "SELECT department.id, department.name, SUM(role.salary) AS utilized_budget FROM department LEFT JOIN role ON role.department_id = department.id LEFT JOIN employee ON employee.role_id = role.id GROUP BY department.id, department.name"
+    );
+}
+
+async function viewDepartments() {
+    const departments = await allDepartments();
+  
+    console.log("\n");
+    console.table(departments);
+  
+    userPrompts();
+  }
 
 
+//VIEW ALL ROLES FUNCTIONS
+function allRoles() {
+    return connection.query(
+      "SELECT role.id, role.title, department.name AS department, role.salary FROM role LEFT JOIN department on role.department_id = department.id;"
+    );
+  }
+
+async function viewRoles() {
+    const roles = await allRoles();
+  
+    console.log("\n");
+    console.table(roles);
+  
+    userPrompts();
+  }
 
 
-/*connection.query("SELECT * FROM employee", function (err, result, fields) {
+/*connection.query("SELECT * FROM department", function (err, result, fields) {
     if (err) throw err;
-    console.log(result);
+    console.table(result);
   });*/
